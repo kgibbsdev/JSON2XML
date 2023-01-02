@@ -2,9 +2,39 @@
 #include <fstream>
 #include <string>
 
+std::string GetPropName(const std::string& line)
+{
+  //Return the string up to the ':' and after the tab special characters (compare to line)
+  std::string propName = line.substr(3, line.find(58) - 3);
+
+  //Take off the final '\'
+  try 
+  {
+    propName.pop_back();
+  }
+  catch (std::string propName)
+  {
+    std::cout << "Cannot pop_back() on " << propName << std::endl;
+  }
+  
+
+  return propName;
+}
+
+std::string GetPropValue(const std::string& line)
+{
+  std::string value = line.substr(line.find(58), line.length()-1);
+  value = value.substr(2, line.length()-2);
+  value.pop_back();
+  return value;
+}
+
 int main()
 {
     std::ifstream stream("Resources/data.json");
+    std::ofstream xmlFile;
+    xmlFile.open("Resources/data.xml");
+
     std::string line;
     bool insideJsonValue = false;
     while (std::getline(stream, line))
@@ -19,20 +49,19 @@ int main()
         insideJsonValue = false;
       }
 
-      if (insideJsonValue && line != "\t{")
+      if (insideJsonValue && line != "\t{" && line != "\t}" && line != "]")
       {//this line is a json property
-         std::string propName;
+         
+         std::string propName = GetPropName(line);
+         std::string propValue = GetPropValue(line);
+         std::string beginTag = "<" + propName + ">";
+         std::string endTag = "<\/" + propName + ">";
+         std::string xmlValue = beginTag + propValue + endTag + "\n";
 
-         //Return the string up to the ':' and after the tab special characters (compare to line)
-         propName = line.substr(3, line.find(58) - 3);
-
-         //Take off the final '\'
-         propName.pop_back();
-
-         std::cout << propName << std::endl;
+         xmlFile << xmlValue;
       }
-      
     }
+    xmlFile.close();
 
     
 }
