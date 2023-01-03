@@ -8,14 +8,8 @@ std::string GetPropName(const std::string& line)
   std::string propName = line.substr(3, line.find(58) - 3);
 
   //Take off the final '\'
-  try 
-  {
+  if (propName != "")
     propName.pop_back();
-  }
-  catch (std::string propName)
-  {
-    std::cout << "Cannot pop_back() on " << propName << std::endl;
-  }
   
 
   return propName;
@@ -25,7 +19,9 @@ std::string GetPropValue(const std::string& line)
 {
   std::string value = line.substr(line.find(58), line.length()-1);
   value = value.substr(2, line.length()-2);
-  value.pop_back();
+
+  if(value != "")
+    value.pop_back();
   return value;
 }
 
@@ -35,6 +31,17 @@ int main()
     std::ofstream xmlFile;
     xmlFile.open("Resources/data.xml");
 
+    std::string rootElement;
+
+    std::cout << "Enter a name for the root element. \n";
+    std::cin >> rootElement;
+
+    xmlFile << "<?xml version=\"1.0\"?>" << "\n";
+
+    std::string beginRootTag = "<" + rootElement + ">";
+    std::string endRootTag = "<\/" + rootElement + ">";
+
+    xmlFile << beginRootTag << std::endl;
     std::string line;
     bool insideJsonValue = false;
     while (std::getline(stream, line))
@@ -61,6 +68,8 @@ int main()
          xmlFile << xmlValue;
       }
     }
+
+    xmlFile << endRootTag << std::endl;
     xmlFile.close();
 
     
